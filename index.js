@@ -6,10 +6,10 @@ const jsonwebtoken = require('jsonwebtoken');
 // dbConnection();
 const app = express();
 const port = process.env.PORT || 3000;
-
 app.use(express.json());
+
 app.use('/api/contacts', require('./routes/contactRoutes'));
-app.use(errorHandler);
+// app.use(errorHandler);
 app.listen(port, () => {
     // jsonwebtoken.sign({user: 'kajal'}, 'kajal452', {expiresIn: '1h'}, (err, token) => {
     //     if(err) throw err;
@@ -17,9 +17,3 @@ app.listen(port, () => {
     // })
     console.log(`Example app listening at  http://localhost:${port}`);
 });
-
-/*
-
-kajal b8cZ6kCKUnBjYzdw
-kajal452    ujl3UkKjFmLRAHol
-*/
