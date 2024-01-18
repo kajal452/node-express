@@ -63,7 +63,13 @@
                 for (const track of mySteam.getTracks()) {
                     peer.addTrack(track, mySteam);
                 }
+                
 
+            }
+
+            peer.ontrack = async(ev) => {
+                ev.streams[0].getAudioTracks(); // Returns all the audio tracks
+                ev.streams[0].getVideoTracks(); // Returns all the audio tracks
             }
 
             socket.on('users:joined', (id) => {
@@ -135,17 +141,29 @@
 
             socket.on('hello', ({ id }) => document.getElementById('myId').innerText = id)
 
-
             const getUserMedia = async () => {
+
                 const userMedia = await navigator.mediaDevices.getUserMedia({
-                    video: true,
+                    video: true
                 });
+
+                // Capture the screen stream
+                const screenSteam = await navigator.mediaDevices.getDisplayMedia();
 
                 const videoEle = document.getElementById('local-video');
                 videoEle.srcObject = userMedia;
                 videoEle.play()
-            }
 
+                // This is our webcam stream
+                for (let track of userMedia.getTracks()) {
+                        peer.addTrack(track, userMedia)
+                }
+
+                // Finally add the screen stream to peer
+                for (let track of screenSteam.getTracks()){
+                        peer.addTrack(track, userMedia)
+                }
+            }
 
             window.addEventListener('load', getAndUpdateUsers);
             window.addEventListener('load', getUserMedia);
