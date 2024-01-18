@@ -1,22 +1,51 @@
-require('dotenv').config();
+// index.js
+
+const http = require('http');
 const express = require('express');
-const errorHandler = require('./middlewares/errorHandler');
-const jsonwebtoken = require('jsonwebtoken');
-const dbConnection = require('./config/dbConnection');
-dbConnection();
+const { Server: SocketIO } = require('socket.io');
+const path = require('path');
+
 const app = express();
-const port = process.env.PORT || 3000;
+const server = http.createServer(app);
 
-app.use(express.static('./public'));
-app.use(express.json());
+const io = new SocketIO(server);
+const PORT = process.env.PORT || 8000;
 
-app.use('/api/contacts', require('./routes/contactRoutes'));
-app.use('/api/users', require('./routes/userRoutes'));
-app.use(errorHandler);
-app.listen(port, () => {
-    // jsonwebtoken.sign({user: 'kajal'}, 'kajal452', {expiresIn: '1h'}, (err, token) => {
-    //     if(err) throw err;
-    //     console.log(token);
-    // })
-    console.log(`Example app listening at  http://localhost:${port}`);
+// Create a users map to keep track of users
+const users = new Map();
+
+io.on('connection', socket => {
+    console.log(`user connected: ${socket.id}`);
+    users.set(socket.id, socket.id);
+
+    // emit that a new user has joined as soon as someone joins
+    socket.broadcast.emit('users:joined', socket.id);
+    socket.emit('hello', { id: socket.id });
+
+    socket.on('outgoing:call', data => {
+        const { fromOffer, to } = data;
+
+        socket.to(to).emit('incomming:call', { from: socket.id, offer: fromOffer });
+    });
+
+    socket.on('call:accepted', data => {
+        const { answere, to } = data;
+        socket.to(to).emit('incomming:answere', { from: socket.id, offer: answere })
+    });
+
+
+    socket.on('disconnect', () => {
+        console.log(`user disconnected: ${socket.id}`);
+        users.delete(socket.id);
+        socket.broadcast.emit('user:disconnect', socket.id);
+    });
 });
+
+
+app.use(express.static( path.resolve('./public') ));
+
+app.get('/users', (req, res) => {
+    return res.json(Array.from(users));
+});
+
+server.listen(PORT, () => console.log(`Server started at PORT:${PORT}`));

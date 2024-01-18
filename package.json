@@ -18,7 +18,8 @@
     "express-async-handler": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.1.0",
-    "razorpay": "^2.9.2"
+    "razorpay": "^2.9.2",
+    "socket.io": "^4.7.4"
   },
   "devDependencies": {
     "nodemon": "^3.0.3",
