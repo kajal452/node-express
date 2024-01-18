@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razorpay</title>
+</head>
+<body>
+    <div>
+        <button id="buy-now-btn">Buy Now</button>
+    </div>
+
+    <!-- Razorpay Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script>
+        // Get the button
+        const buyButton = document.getElementById('buy-now-btn');
+
+        // Add click event listner
+        buyButton.addEventListener('click', async (event) => {
+            const response = await fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ amount: 500 }) // Rs.500
+            });
+
+            console.log(response);
+            const responseJson = await response.json();
+            console.log(responseJson);
+            const { order } = responseJson;
+
+            const razorPayOptions = {
+                key: 'rzp_test_GzI9Ny1utodc7s',
+                amount: 500,
+                currency: 'INR',
+                name: `Buy Shirt`,
+                description: `Paying for testing`,
+                order_id: order.id,
+                handler: function (response) { // handler function when payment is successfull
+                    const razorpayPaymentId = response['razorpay_payment_id'];
+                    const razorpayOrderId = response['razorpay_order_id'];
+                    const razorpaySignature = response['razorpay_signature'];
+
+                    console.log('Payment successfull');
+                },
+            };
+
+            const razorpayInstance = new Razorpay(razorPayOptions);
+            razorpayInstance.open();
+        });
+
+    </script>
+</body>
+</html>
