@@ -2,11 +2,8 @@ const mongoose = require('mongoose');
 
 const dbConnection = async () => {
     try {
-      const connect =  await mongoose.connect(process.env.MONGODB_CNN, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
-        console.log(`DB online ${connect.connection.host}`);
+      const connect =  await mongoose.connect(process.env.MONGODB_CNN);
+        console.log(`DB online ${connect.connection.host} ${connect.connection.name}`);
     } catch (error) {
         console.log(error);
         throw new Error('Error al iniciar la DB');
